@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>С 8 марта</title>
+<style>
+body, html{
+  margin:0;
+  padding:0;
+  overflow:hidden;
+  background:black;
+  font-family:Arial;
+  text-align:center;
+}
+
+#start{
+  position:absolute;
+  width:100%;
+  height:100%;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  background:black;
+  cursor:pointer;
+  color:white;
+}
+
+#matrix{
+  position:absolute;
+  width:100%;
+  height:100%;
+  display:none;
+  overflow:hidden;
+}
+
+.heart{
+  position:absolute;
+  font-size:16px;
+  color:#ff4d6d; 
+  animation-name:fall;
+  animation-timing-function:linear;
+  animation-iteration-count:infinite;
+}
+
+@keyframes fall{
+  0%{transform:translateY(-2em)}
+  100%{transform:translateY(110vh)}
+}
+
+#countdown{
+  position:absolute;
+  top:40%;
+  width:100%;
+  font-size:120px;
+  display:none;
+  color:#ff99aa;
+}
+
+#text{
+  position:absolute;
+  top:40%;
+  width:100%;
+  font-size:80px;
+  display:none;
+  color:#ff4d6d;
+}
+
+#gallery{
+  display:none;
+  position:absolute;
+  width:100%;
+  height:100%;
+  justify-content:center;
+  align-items:center;
+}
+
+#gallery img{
+  max-width:70%;
+  max-height:70%;
+  cursor:pointer;
+  border-radius:20px;
+  transition: all 1s ease; /* плавный переход */
+}
+
+#heartContainer{
+  display:none;
+  position:absolute;
+  width:100%;
+  height:100%;
+}
+#heartContainer img{
+  position:absolute;
+  width:100px;
+  height:100px;
+  object-fit:cover;
+  transition: all 1.2s ease;
+  border-radius:20px;
+}
+</style>
+</head>
+<body>
+
+<div id="start">
+  <h1>С 8 марта!</h1>
+  <p>Нажми чтобы продолжить</p>
+</div>
+
+<div id="matrix"></div>
+<div id="countdown"></div>
+<div id="text"></div>
+<div id="gallery"><img id="photo"></div>
+<div id="heartContainer"></div>
+
+<script>
+const matrix=document.getElementById("matrix");
+
+function startMatrix(){
+  matrix.style.display="block";
+  const rows = 8;
+  const cols = 40;
+  const spacing = 100/cols;
+  for(let r=0;r<rows;r++){
+    for(let c=0;c<cols;c++){
+      const heart = document.createElement("div");
+      heart.className="heart";
+      heart.innerText="❤️";
+      heart.style.left=(c*spacing)+"%";
+      heart.style.top=(-Math.random()*100)+"px";
+      heart.style.animationDuration=(3+Math.random()*3)+"s";
+      matrix.appendChild(heart);
+    }
+  }
+}
+
+const start=document.getElementById("start");
+start.onclick=()=>{
+  start.style.display="none";
+  startMatrix();
+  setTimeout(countdown,3000);
+}
+
+function countdown(){
+  const c=document.getElementById("countdown");
+  c.style.display="block";
+  let num=3;
+  const inter=setInterval(()=>{
+    c.innerText=num;
+    num--;
+    if(num<0){
+      clearInterval(inter);
+      setTimeout(showText,500);
+    }
+  },1000);
+}
+
+function showText(){
+  const t=document.getElementById("text");
+  t.style.display="block";
+  const c=document.getElementById("countdown");
+  c.style.display="none";
+
+  const words=["С","8","Марта","Аленка"];
+  let i=0;
+  const inter=setInterval(()=>{
+    t.innerText=words[i];
+    i++;
+    if(i>=words.length){
+      clearInterval(inter);
+      setTimeout(startGallery,1500);
+    }
+  },1200);
+}
+
+const photos=[
+  "photo1.jpg","photo2.jpg","photo3.jpg","photo4.jpg","photo5.jpg",
+  "photo6.jpg","photo7.jpg","photo8.jpg","photo9.jpg","photo10.jpg"
+];
+
+let index=0;
+
+function startGallery(){
+  document.getElementById("text").style.display="none";
+  const g=document.getElementById("gallery");
+  g.style.display="flex";
+  const img=document.getElementById("photo");
+  img.src=photos[index];
+
+  img.onclick=()=>{
+    index++;
+    if(index<photos.length){
+      img.src=photos[index];
+    } else {
+      // последний клик запускает сердце
+      formHeart();
+    }
+  }
+}
+
+function formHeart(){
+  const g=document.getElementById("gallery");
+  g.style.display="none";
+
+  const container=document.getElementById("heartContainer");
+  container.style.display="block";
+
+  // создаём фото внутри контейнера
+  photos.forEach((photo,i)=>{
+    const img=document.createElement("img");
+    img.src=photo;
+    container.appendChild(img);
+  });
+
+  // координаты для формирования сердца (пример для 10 фото)
+  const coords=[
+    {x:50,y:10}, {x:65,y:25}, {x:80,y:40}, {x:35,y:25}, {x:20,y:40},
+    {x:50,y:50}, {x:65,y:65}, {x:35,y:65}, {x:50,y:80}, {x:50,y:30}
+  ];
+
+  // через 100мс чтобы отработал рендер
+  setTimeout(()=>{
+    const imgs=container.querySelectorAll("img");
+    imgs.forEach((img,i)=>{
+      img.style.left=coords[i].x+"%";
+      img.style.top=coords[i].y+"%";
+    });
+  },100);
+}
+</script>
+</body>
+</html>
